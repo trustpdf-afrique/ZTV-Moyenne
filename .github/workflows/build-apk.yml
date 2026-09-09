@@ -1,1 +1,37 @@
+name: Construire ZTV-Moyenne
 
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Télécharger le projet
+        uses: actions/checkout@v6
+
+      - name: Décompresser le projet
+        run: |
+          unzip -q ZTV-Moyenne-Android.zip -d projet
+          echo "Projet extrait"
+
+      - name: Installer Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Installer Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.9'
+
+      - name: Construire l'APK
+        working-directory: projet/ZTV-Moyenne
+        run: gradle assembleDebug
+
+      - name: Récupérer l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZTV-Moyenne-APK
+          path: projet/ZTV-Moyenne/app/build/outputs/apk/debug/app-debug.apk
