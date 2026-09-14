@@ -25,7 +25,7 @@ jobs:
 
       - name: Décompresser le projet
         run: |
-          unzip -o ZTV_Moyenne_Android.zip
+          unzip -o ZTV-Moyenne-APK-complet.zip
           cd ZTV_Moyenne_Android
           ls -la
 
