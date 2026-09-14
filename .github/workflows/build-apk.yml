@@ -1,49 +1,42 @@
-
-name: Construire APK ZTV Moyenne
+name: ZTV Moyenne APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
-      - name: Télécharger le projet
+      - name: Récupérer le dépôt
         uses: actions/checkout@v4
 
-      - name: Installer Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: 20
-
-      - name: Installer Java 21
+      - name: Installer Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: '17'
 
-      - name: Installer les dépendances
-        run: npm install
+      - name: Installer Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Préparer les icônes et le projet Android
+      - name: Décompresser le projet
         run: |
-          npx capacitor-assets generate --android
-          npx cap add android
-          npx cap sync android
+          unzip -o ZTV_Moyenne_Android.zip
+          cd ZTV_Moyenne_Android
+          ls -la
 
-      - name: Construire l’APK debug
-        working-directory: android
-        run: ./gradlew assembleDebug
+      - name: Construire l'APK
+        working-directory: ZTV_Moyenne_Android
+        run: |
+          chmod +x gradlew 2>/dev/null || true
+          gradle :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Publier l’APK
+      - name: Télécharger l'APK
         uses: actions/upload-artifact@v4
         with:
           name: ZTV-Moyenne-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          
+          path: ZTV_Moyenne_Android/app/build/outputs/apk/debug/app-debug.apk
